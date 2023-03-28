@@ -8,6 +8,7 @@ import java.net.URL;
 import java.net.URLConnection;
 
 public class CanionPeticionesFlexible {
+	/* Envia una sola peticion a la vez sin emplear hilos */
 	
 	public static final String PROTOCOLO = "http";
 	public static final String IP_HOST = "localhost";
