@@ -19,12 +19,12 @@ public class CanionMultiHilo {
 	public static final boolean MOSTRAR_ACIERTOS_X_HILO = true;
 
 	public static void main(String[] args) {
-		DisparadorI[] disparador = new DisparadorI[NUM_HILOS];
+		DisparadorI[] arrDisparadores = new DisparadorI[NUM_HILOS];
 		String cadUrl = PROTOCOLO + "://" + IP + ":" + PUERTO + "/" + CONTEXTO;
 		
-		crearHilosDisparadoresDePeticiones(disparador, cadUrl);		
-		ejecutarHilosDisparadores(disparador);		
-		esperarFinalizacionHilos(disparador);
+		crearHilosDisparadoresDePeticiones(arrDisparadores, cadUrl);		
+		ejecutarHilosDisparadores(arrDisparadores);		
+		esperarFinalizacionHilos(arrDisparadores);
 		
 		Errores.mostrarCifrasControlErrores();
 		if(MOSTRAR_ERRORES_X_HILO)
@@ -34,15 +34,15 @@ public class CanionMultiHilo {
 	}
 
 
-	private static void ejecutarHilosDisparadores(DisparadorI[] disparador) {
+	private static void ejecutarHilosDisparadores(DisparadorI[] arrDisparadores) {
 		for(int i=0; i<NUM_HILOS; i++)
-			disparador[i].iniciarAtaque();
+			arrDisparadores[i].iniciarAtaque();
 	}
 
 
-	private static void crearHilosDisparadoresDePeticiones(DisparadorI[] disparador, String cadUrl) {
+	private static void crearHilosDisparadoresDePeticiones(DisparadorI[] arrDisparadores, String cadUrl) {
 		for(int i=0; i<NUM_HILOS; i++){
-			disparador[i] = new DisparadorI(cadUrl, NUM_PETICIONES_X_HILO,
+			arrDisparadores[i] = new DisparadorI(cadUrl, NUM_PETICIONES_X_HILO,
 											MOSTRAR_RESPUESTA, PAUSA_ENTRE_PETICIONES_MILIS, 
 											TIMEOUT_MILIS);
 		}
@@ -63,11 +63,11 @@ public class CanionMultiHilo {
 	}
 
 
-	private static void esperarFinalizacionHilos(DisparadorI[] disparador) {
+	private static void esperarFinalizacionHilos(DisparadorI[] arrDisparadores) {
 		// El siguiente for espera a que todos los hilos finalicen, para que la bitacora de errores se despliegue
 		try {
 			for(int i=0; i<NUM_HILOS; i++)
-				disparador[i].esperarFin();
+				arrDisparadores[i].esperarFin();
 		}
 		catch (Exception e) {
 			e.printStackTrace();
