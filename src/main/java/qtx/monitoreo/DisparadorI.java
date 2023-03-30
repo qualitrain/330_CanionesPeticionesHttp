@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Map;
@@ -36,7 +37,7 @@ public class DisparadorI implements Runnable {
 		this.timeout = timeout;
 	}
 
-	public void iniciar(){
+	public void iniciarAtaque(){
 		this.hiloI.start();
 	}
 
@@ -44,7 +45,6 @@ public class DisparadorI implements Runnable {
 	public void run() {
 		 bombardearURL(this.nPeticiones);
 	}
-
 
 	private void bombardearURL(int nPeticiones) {
 		URL url = null;
@@ -56,8 +56,8 @@ public class DisparadorI implements Runnable {
 				System.out.println("MalformedURLException");
 				continue;
 			}
-			 generarPeticion(url);
-			 hacerPausa();
+			 this.crearConexionConstruirEnviarPeticionRecibirRespuesta(url);
+			 this.hacerPausa();
 		}
 	}
 
@@ -71,23 +71,20 @@ public class DisparadorI implements Runnable {
 		 }
 		
 	}
-	private void generarPeticion(URL url) {
+	private void crearConexionConstruirEnviarPeticionRecibirRespuesta(URL url) {
 		HttpURLConnection conexion = null;
 		try {
-			conexion = (HttpURLConnection)url.openConnection();
-			conexion.setRequestProperty("User-Agent", "TestStress");
-			conexion.setRequestMethod(UtilTest.getVerboRandom());
-			conexion.setRequestProperty("Accept", UtilTest.getMediaTypeRandom());
-			
-			conexion.setConnectTimeout(this.timeout);
+			conexion = configurarConexion(url);
 			conexion.connect();
 			
 			mostrarRespuesta(conexion);
 			
 			if(conexion.getResponseCode() == 200) {
-				int nOcurrencias = DisparadorI.ocurrenciasExitosasXhilo.getOrDefault(Thread.currentThread().getId(),0);
-				nOcurrencias++;
-				DisparadorI.ocurrenciasExitosasXhilo.put(Thread.currentThread().getId(), nOcurrencias);
+				synchronized(DisparadorI.ocurrenciasExitosasXhilo) {					
+					int nOcurrencias = DisparadorI.ocurrenciasExitosasXhilo.getOrDefault(Thread.currentThread().getId(),0);
+					nOcurrencias++;
+					DisparadorI.ocurrenciasExitosasXhilo.put(Thread.currentThread().getId(), nOcurrencias);
+				}
 			}
 			 
 		 }
@@ -95,6 +92,17 @@ public class DisparadorI implements Runnable {
 			Errores.agregarError(ex, Thread.currentThread().getId());
 		 }
 		
+	}
+
+	private HttpURLConnection configurarConexion(URL url) throws IOException, ProtocolException {
+		HttpURLConnection conexion;
+		conexion = (HttpURLConnection)url.openConnection();
+		conexion.setRequestProperty("User-Agent", "TestStress");
+		conexion.setRequestMethod(UtilTest.getVerboRandom());
+		conexion.setRequestProperty("Accept", UtilTest.getMediaTypeRandom());
+		
+		conexion.setConnectTimeout(this.timeout);
+		return conexion;
 	}
 
 	private void mostrarRespuesta(URLConnection conexion) throws IOException {
