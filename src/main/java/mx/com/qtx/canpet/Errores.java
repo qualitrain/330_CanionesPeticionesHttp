@@ -1,4 +1,4 @@
-package qtx.monitoreo;
+package mx.com.qtx.canpet;
 
 import java.util.List;
 import java.util.Map;

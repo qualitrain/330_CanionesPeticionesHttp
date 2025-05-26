@@ -1,4 +1,4 @@
-package qtx.monitoreo;
+package mx.com.qtx.canpet;
 
 import java.io.BufferedReader;
 import java.io.IOException;

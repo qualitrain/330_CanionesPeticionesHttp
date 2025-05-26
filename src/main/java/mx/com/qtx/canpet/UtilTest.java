@@ -1,4 +1,4 @@
-package qtx.monitoreo;
+package mx.com.qtx.canpet;
 
 public class UtilTest {
 	public static String verbosHttp[] = {"GET","POST","PUT","DELETE", "GET","GET","GET"};

@@ -1,5 +1,6 @@
 HELP.md
 target/
+bin/
 *.class
 ### !**/src/main/**
 ### !**/src/test/**
