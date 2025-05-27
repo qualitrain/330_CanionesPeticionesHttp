@@ -1,4 +1,4 @@
-package mx.com.qtx.canpet;
+package mx.com.qtx.canpet.multiThread;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -12,11 +12,11 @@ public class CanionMultiHilo {
 	public static final String PUERTO = "8080";
 	public static final String CONTEXTO = "330_TestDenegServicio";
 	
-	public static final int NUM_HILOS = 20;
-	public static final int NUM_PETICIONES_X_HILO = 3000;
+	public static final int NUM_HILOS = 300;
+	public static final int NUM_PETICIONES_X_HILO = 40;
 	public static final int PAUSA_ENTRE_PETICIONES_MILIS = 0;
 	
-	public static final int TIMEOUT_MILIS = 1000; // 0 = Infinito
+	public static final int TIMEOUT_MILIS = 1500; // 0 = Infinito
 	
 	public static final boolean MOSTRAR_RESPUESTA = false;
 	public static final boolean MOSTRAR_ERRORES_X_HILO = true;
@@ -24,7 +24,7 @@ public class CanionMultiHilo {
 	public static final boolean MOSTRAR_EN_ARCHIVO = true;
 
 	public static void main(String[] args) {
-		DisparadorI[] arrDisparadores = new DisparadorI[NUM_HILOS];
+		DisparadorPeticionesI[] arrDisparadores = new DisparadorPeticionesI[NUM_HILOS];
 		String cadUrl = PROTOCOLO + "://" + IP + ":" + PUERTO + "/" + CONTEXTO;
 		
 		crearHilosDisparadoresDePeticiones(arrDisparadores, cadUrl);		
@@ -32,31 +32,31 @@ public class CanionMultiHilo {
 		esperarFinalizacionHilos(arrDisparadores);
 		
 		if(MOSTRAR_EN_ARCHIVO){
-			Errores.imprimirCifrasControlErrores();
+			GestorErrores.imprimirCifrasControlErrores();
 			if(MOSTRAR_ERRORES_X_HILO)
-				Errores.imprimirCantErroresXhilo();
+				GestorErrores.imprimirCantErroresXhilo();
 			if(MOSTRAR_ACIERTOS_X_HILO)
 				imprimirPeticionesExitosasXhilo();
 		}
 		else {
-			Errores.mostrarCifrasControlErrores();
+			GestorErrores.mostrarCifrasControlErrores();
 			if(MOSTRAR_ERRORES_X_HILO)
-				Errores.mostrarCantErroresXhilo();
+				GestorErrores.mostrarCantErroresXhilo();
 			if(MOSTRAR_ACIERTOS_X_HILO)
 				mostrarPeticionesExitosasXhilo();
 		}
 	}
 
 
-	private static void ejecutarHilosDisparadores(DisparadorI[] arrDisparadores) {
+	private static void ejecutarHilosDisparadores(DisparadorPeticionesI[] arrDisparadores) {
 		for(int i=0; i<NUM_HILOS; i++)
 			arrDisparadores[i].iniciarAtaque();
 	}
 
 
-	private static void crearHilosDisparadoresDePeticiones(DisparadorI[] arrDisparadores, String cadUrl) {
+	private static void crearHilosDisparadoresDePeticiones(DisparadorPeticionesI[] arrDisparadores, String cadUrl) {
 		for(int i=0; i<NUM_HILOS; i++){
-			arrDisparadores[i] = new DisparadorI(cadUrl, NUM_PETICIONES_X_HILO,
+			arrDisparadores[i] = new DisparadorPeticionesI(cadUrl, NUM_PETICIONES_X_HILO,
 											MOSTRAR_RESPUESTA, PAUSA_ENTRE_PETICIONES_MILIS, 
 											TIMEOUT_MILIS);
 		}
@@ -65,7 +65,7 @@ public class CanionMultiHilo {
 
 	private static void mostrarPeticionesExitosasXhilo() {
 		System.out.println("--- Peticiones exitosas ----");
-		Map<Long, Integer> exitosXhilo = DisparadorI.getOcurrenciasExitosasXhilo();
+		Map<Long, Integer> exitosXhilo = DisparadorPeticionesI.getOcurrenciasExitosasXhilo();
 		int total = 0;
 		for(Long idHiloI:exitosXhilo.keySet()) {
 			int nPeticionesOk = exitosXhilo.get(idHiloI);
@@ -81,7 +81,7 @@ public class CanionMultiHilo {
 		
 		try (PrintWriter pw = new PrintWriter(new FileWriter(nomArchivo))){
 			pw.println("--- Peticiones exitosas ----");
-			Map<Long, Integer> exitosXhilo = DisparadorI.getOcurrenciasExitosasXhilo();
+			Map<Long, Integer> exitosXhilo = DisparadorPeticionesI.getOcurrenciasExitosasXhilo();
 			int total = 0;
 			for(Long idHiloI:exitosXhilo.keySet()) {
 				int nPeticionesOk = exitosXhilo.get(idHiloI);
@@ -115,7 +115,7 @@ public class CanionMultiHilo {
 	}
 
 
-	private static void esperarFinalizacionHilos(DisparadorI[] arrDisparadores) {
+	private static void esperarFinalizacionHilos(DisparadorPeticionesI[] arrDisparadores) {
 		// El siguiente for espera a que todos los hilos finalicen, para que la bitacora de errores se despliegue
 		try {
 			for(int i=0; i<NUM_HILOS; i++)

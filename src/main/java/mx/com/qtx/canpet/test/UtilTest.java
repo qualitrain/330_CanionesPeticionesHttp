@@ -1,10 +1,14 @@
-package mx.com.qtx.canpet;
+package mx.com.qtx.canpet.test;
 
+/**
+ * Provee datos aleatorios, dentro de un universo predefinido, para armar peticiones HTTP
+ */
 public class UtilTest {
 	public static String verbosHttp[] = {"GET","POST","PUT","DELETE", "GET","GET","GET"};
 	public static String mediaTypes[] = {"application/json","text/plain","text/html"};
 	public static String recursos[] = {"/img/gato.gif","/img/osoPolar.jpg",
 			"/img/desierto.jpg","/img/snoopy.JPG","/Test","/Test","/Test"};
+	
 	public static String getVerboRandom() {
 		int n = (int)(Math.random() * 10033);
 		return verbosHttp[n%verbosHttp.length];

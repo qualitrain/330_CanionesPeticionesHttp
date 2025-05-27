@@ -1,4 +1,4 @@
-package mx.com.qtx.canpet;
+package mx.com.qtx.canpet.multiThread;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -12,15 +12,17 @@ import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Errores {
+public class GestorErrores {
 	private static Map<Long, List<Exception> > erroresXhilo;
 	private static Map<String,Integer> erroresXtipo;
 	private static Map<String,Integer> msgsErrorXtipo;
+	
 	static {
 		erroresXhilo = new ConcurrentHashMap<>();
 		erroresXtipo = new ConcurrentHashMap<>();
 		msgsErrorXtipo = new ConcurrentHashMap<>();
 	}
+	
 	private static AtomicInteger counter = new AtomicInteger(0);
 	
 	public static void agregarError(Exception ex, long idHilo) {
@@ -112,7 +114,7 @@ public class Errores {
 		LocalDateTime ahora = LocalDateTime.now();
 	    String nomArchivo = rutaTemporales + "\\" 
 	    							+ CanionMultiHilo.class.getSimpleName() + "_"
-		                            + Errores.class.getSimpleName() + "_" 
+		                            + GestorErrores.class.getSimpleName() + "_" 
 		                            + "ErrsXhilo" + "_" 
 									+ ahora.getYear() 
 									+ ahora.getMonthValue()
@@ -221,7 +223,7 @@ public class Errores {
 		LocalDateTime ahora = LocalDateTime.now();
 	    String nomArchivo = rutaTemporales + "\\" 
 	    							+ CanionMultiHilo.class.getSimpleName() + "_"
-		                            + Errores.class.getSimpleName() + "_" 
+		                            + GestorErrores.class.getSimpleName() + "_" 
 		                            + "CtrlErrores" + "_" 
 									+ ahora.getYear() 
 									+ ahora.getMonthValue()
