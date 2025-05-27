@@ -1,5 +1,9 @@
 package mx.com.qtx.canpet;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 public class CanionMultiHilo {
@@ -8,8 +12,8 @@ public class CanionMultiHilo {
 	public static final String PUERTO = "8080";
 	public static final String CONTEXTO = "330_TestDenegServicio";
 	
-	public static final int NUM_HILOS = 4000;
-	public static final int NUM_PETICIONES_X_HILO = 30;
+	public static final int NUM_HILOS = 20;
+	public static final int NUM_PETICIONES_X_HILO = 3000;
 	public static final int PAUSA_ENTRE_PETICIONES_MILIS = 0;
 	
 	public static final int TIMEOUT_MILIS = 1000; // 0 = Infinito
@@ -17,6 +21,7 @@ public class CanionMultiHilo {
 	public static final boolean MOSTRAR_RESPUESTA = false;
 	public static final boolean MOSTRAR_ERRORES_X_HILO = true;
 	public static final boolean MOSTRAR_ACIERTOS_X_HILO = true;
+	public static final boolean MOSTRAR_EN_ARCHIVO = true;
 
 	public static void main(String[] args) {
 		DisparadorI[] arrDisparadores = new DisparadorI[NUM_HILOS];
@@ -26,11 +31,20 @@ public class CanionMultiHilo {
 		ejecutarHilosDisparadores(arrDisparadores);		
 		esperarFinalizacionHilos(arrDisparadores);
 		
-		Errores.mostrarCifrasControlErrores();
-		if(MOSTRAR_ERRORES_X_HILO)
-			Errores.mostrarCantErroresXhilo();
-		if(MOSTRAR_ACIERTOS_X_HILO)
-			mostrarPeticionesExitosasXhilo();
+		if(MOSTRAR_EN_ARCHIVO){
+			Errores.imprimirCifrasControlErrores();
+			if(MOSTRAR_ERRORES_X_HILO)
+				Errores.imprimirCantErroresXhilo();
+			if(MOSTRAR_ACIERTOS_X_HILO)
+				imprimirPeticionesExitosasXhilo();
+		}
+		else {
+			Errores.mostrarCifrasControlErrores();
+			if(MOSTRAR_ERRORES_X_HILO)
+				Errores.mostrarCantErroresXhilo();
+			if(MOSTRAR_ACIERTOS_X_HILO)
+				mostrarPeticionesExitosasXhilo();
+		}
 	}
 
 
@@ -60,6 +74,44 @@ public class CanionMultiHilo {
 		}
 		System.out.println("Total de peticiones exitosas (status=200) : " 
 		                          + total + " de " + NUM_PETICIONES_X_HILO * NUM_HILOS);
+	}
+
+	private static void imprimirPeticionesExitosasXhilo() {
+		String nomArchivo = getNomArchivoReqsExitosasXhilo();
+		
+		try (PrintWriter pw = new PrintWriter(new FileWriter(nomArchivo))){
+			pw.println("--- Peticiones exitosas ----");
+			Map<Long, Integer> exitosXhilo = DisparadorI.getOcurrenciasExitosasXhilo();
+			int total = 0;
+			for(Long idHiloI:exitosXhilo.keySet()) {
+				int nPeticionesOk = exitosXhilo.get(idHiloI);
+				total+=nPeticionesOk;
+				pw.println("Hilo " + idHiloI + " : " + nPeticionesOk + " de " + NUM_PETICIONES_X_HILO);
+			}
+			pw.println("Total de peticiones exitosas (status=200) : " 
+			                          + total + " de " + NUM_PETICIONES_X_HILO * NUM_HILOS);			
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static String getNomArchivoReqsExitosasXhilo() {
+		String rutaTemporales = System.getenv("TEMP");
+		
+		LocalDateTime ahora = LocalDateTime.now();
+	    String nomArchivo = rutaTemporales + "\\" 
+	    							+ CanionMultiHilo.class.getSimpleName() + "_"
+		                            + "ReqsOkXhilo" + "_" 
+									+ ahora.getYear() 
+									+ ahora.getMonthValue()
+									+ ahora.getDayOfMonth() 
+									+ ahora.getHour()
+									+ ahora.getMinute() 
+									+ ahora.getSecond()
+									+ ".txt";
+	    System.out.println("nomArchivo:" + nomArchivo);
+	    return nomArchivo;
 	}
 
 
